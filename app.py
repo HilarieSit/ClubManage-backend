@@ -25,6 +25,23 @@ def failure_response(message, code=404):
 def get_clubs():
     return success_response(dao.get_all_clubs())
 
+@app.route('/api/clubs/', methods=['POST'])
+def create_club():
+    body = json.loads(request.data)
+    club = dao.create_course(
+        name = body.get('name'),
+        description = body.get('description')
+    )
+    return success_response(club, 201)
+
+@app.route('/api/clubs/<int:club_id>/')
+def get_club(club_id):
+    club = dao.get_club_by_id(club_id)
+    if club is None:
+        return failure_response("Club not found")
+    return success_response(club)
+
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
