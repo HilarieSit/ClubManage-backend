@@ -28,6 +28,38 @@ tasks_users_assoc = db.Table('tasks_user_assoc', db.Model.metadata,
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
 )
 
+class User(db.Model):
+    __tablename__ = 'user'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    email = db.Column(db.String, nullable=False)
+    password = db.Column(db.String, nullable=False)
+    admin_clubs = db.relationship('Club', secondary=clubs_admins_assoc, back_populates='admins')
+    member_clubs = db.relationship('Club', secondary=clubs_members_assoc, back_populates='members')
+    events = db.relationship('Event', secondary=events_users_assoc, back_populates='users')
+    tasks = db.relationship('Task', back_populates='users')
+
+    def __init__(self, **kwargs):
+        self.name = kwargs.get('name', '')
+        self.email = kwargs.get('email', '')
+        self.password = kwargs.get('password', '')
+
+    def serialize(self):
+        all_clubs = [a.serialize() for a in self.admin_clubs]
+        all_clubs.extend([m.serialize() for m in self.member_clubs])
+        serialized_dict = {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'password': self.password,
+            'clubs': all_clubs,
+            'events': [e.serialize() for e in self.events],
+            'tasks': [t.serialize() for u in self.tasks],
+        }
+        for item in removed_item:
+            serialized_dict.pop(item)
+        return serialized_dict
+
 class Club(db.Model):
     """ many-to-many users
         many-to-many events """
@@ -44,7 +76,7 @@ class Club(db.Model):
         self.description = kwargs.get('description', '')
 
     def serialize(self):
-        return {
+        serialized_dict = {
             'id': self.id,
             'name': self.name,
             'description': self.discription,
@@ -52,6 +84,9 @@ class Club(db.Model):
             'admins': [a.serialize_no_course() for a in self.admins],
             'members': [m.serialize_no_course() for m in self.members]
         }
+        for item in removed_item:
+            serialized_dict.pop(item)
+        return serialized_dict
 
 class Events(db.Model):
     """ many-to-many clubs
@@ -62,7 +97,7 @@ class Events(db.Model):
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
     date = db.Column(db.String, nullable=False)
-    budget = db.Column(db.Float, nullable=False)
+    budget = db.Column(db.Float, nullable=True)
     active = db.Column(db.Boolean, nullable=False)
     tasks = db.relationship('Task', cascade='delete')
     clubs = db.relationship('Club', secondary=clubs_events_assoc, back_populates='events')
@@ -76,7 +111,7 @@ class Events(db.Model):
         self.active = kwargs.get('active', '')
 
     def serialize(self):
-        return {
+        serialized_dict = {
             'id': self.id,
             'name': self.name,
             'description': self.discription,
@@ -87,6 +122,9 @@ class Events(db.Model):
             'clubs': [c.serialize_no_course() for c in self.clubs],
             'users': [u.serialize_no_course() for u in self.users],
         }
+        for item in removed_item:
+            serialized_dict.pop(item)
+        return serialized_dict
 
 class Task(db.Model):
     """ 1-many with events
@@ -96,11 +134,11 @@ class Task(db.Model):
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
     date = db.Column(db.String, nullable=False)
-    budget = db.Column(db.Float, nullable=False)
+    budget = db.Column(db.Float, nullable=True)
     active = db.Column(db.Boolean, nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
     event = db.relationship("Event", back_populates="tasks")
-    users = db.relationship('User', secondary=tasks_users_assoc, back_populates='events')
+    users = db.relationship('User', secondary=tasks_users_assoc, back_populates='tasks')
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('name', '')
@@ -109,43 +147,17 @@ class Task(db.Model):
         self.budget = kwargs.get('budget', '')
         self.active = kwargs.get('active', '')
 
-    def serialize(self):
-        return {
+    def serialize(self, removed_item):
+        serialized_dict = {
             'id': self.id,
             'name': self.name,
             'description': self.discription,
             'date': self.date,
             'budget': self.budget,
             'active': self.active,
-            'event': self.event,
-            'users': [u.serialize_no_course() for u in self.users],
+            'event': self.event
+            'users': [u.serialize() for u in self.users],
         }
-
-class User(db.Model):
-    __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-    email = db.Column(db.String, nullable=False)
-    password = db.Column(db.String, nullable=False)
-    events = db.relationship('Event', secondary=events_users_assoc, back_populates='users')
-    admin_clubs = db.relationship('Club', secondary=clubs_admins_assoc, back_populates='admins')
-    member_clubs = db.relationship('Club', secondary=clubs_members_assoc, back_populates='members')
-    tasks = db.relationship('Tasks', back_populates='users')
-
-    def __init__(self, **kwargs):
-        self.name = kwargs.get('name', '')
-        self.email = kwargs.get('email', '')
-        self.password = kwargs.get('password', '')
-
-    def serialize(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'email': self.email,
-            'password': self.password,
-            'events': [e.serialize_no_course() for e in self.events],
-            'clubs': [m.serialize_no_course() for m in self.member_clubs],
-            'tasks': [t.serialize_no_course() for u in self.tasks],
-        }
-
-class Messages(db.Model):
+        for item in removed_item:
+            serialized_dict.pop(item)
+        return serialized_dict
