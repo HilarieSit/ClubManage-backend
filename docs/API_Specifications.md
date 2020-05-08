@@ -248,7 +248,8 @@ Response
 ```
 
 ### 11) Delete event (Admin)
-``` DELETE /api/events/{id}/
+```
+DELETE /api/events/{id}/
 ```
 Delete event
 ```
@@ -269,7 +270,8 @@ Delete event
 ```
 
 ### 12) Add User to Event
-``` POST /api/events/{id}/add/
+```
+POST /api/events/{id}/add/
 ```
 User add event
 ```
@@ -281,7 +283,8 @@ User add event
 ```
 
 ### 12) Create Task
-``` POST /api/events/{id}/tasks
+```
+POST /api/events/{id}/tasks/
 ```
 ```
 {
@@ -301,7 +304,8 @@ User add event
 ```
 
 ### 13) Delete Task
-``` DELETE /api/events/{id}/tasks
+```
+DELETE /api/events/{id}/tasks/
 ```
 ```
 {
@@ -321,7 +325,8 @@ User add event
 ```
 
 ### 14) Add Task to User
-``` POST /api/events/{id}/tasks/add/
+```
+POST /api/events/{id}/tasks/add/
 ```
 ```
 {
