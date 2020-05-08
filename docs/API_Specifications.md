@@ -1,6 +1,6 @@
 # API Specification
 
-### 1 Create User
+### 1) Create User
 User makes account during sign-in, returns user info
 ```
 POST /api/users/
@@ -24,14 +24,13 @@ Response
       "email": <USER INPUT>,
       "clubs": [],
       "events": [],
-      "tasks": [],
-      "messages": []
+      "tasks": []
     }
   ]
 }
 ```
 
-### 2 Get Specific User by ID
+### 2) Get Specific User by ID
 Login/homepage, return user's clubs, events, tasks & messages (if receiver)
 ```
 GET /api/users/{id}/
@@ -47,16 +46,15 @@ Response
       "email": <USER INPUT>,
       "clubs": [<SERIALIZED CLUBS>, ... ],
       "events": [<SERIALIZED EVENTS>, ... ],
-      "tasks": [<SERIALIZED TASKS>, ... ],
-      "messages": [<SERIALIZED MESSAGES>, ... ]
+      "tasks": [<SERIALIZED TASKS>, ... ]
     }
   ]
 }
 ```
 
-### 3 Return All Clubs
+### 3) Return All Clubs
 User searches for clubs to add, Return all clubs from DB
-(Only return name, description, events)
+(return name, description)
 ```
 GET /api/clubs/
 ```
@@ -68,15 +66,14 @@ Response
     {
       "id": <ID>,
       "name": <USER INPUT FOR NAME>,
-      "description": <USER INPUT FOR DESCRIPTION>,
-      "events": [ <SERIALIZED EVENTS WITHOUT TASKS/ADMINS/MEMBERS FIELDS>, ... ]
+      "description": <USER INPUT FOR DESCRIPTION>
     }
     ...
   ]
 }
 ```
 
-### 4 Add New Club to DB (Admin)
+### 4) Add New Club to DB (Admin)
 Admin adds new club, Returns club info
 ```
 POST /api/clubs/
@@ -99,13 +96,12 @@ Response
       "description": <USER INPUT FOR DESCRIPTION>,
       "events": [],
       "admins": [],
-      "members": [],
-      "messages": []
+      "members": []
     },
 }
 ```
 
-### 5 Delete Club From DB (Admin)
+### 5) Delete Club From DB (Admin)
 Admin deletes club, Returns club info
 ```
 DELETE /api/clubs/{id}/
@@ -122,34 +118,12 @@ Response
       "events": [ <SERIALIZED EVENTS WITHOUT CLUB FIELD>, ... ],
       "admins": [ <SERIALIZED USER WITHOUT CLUB FIELD>, ... ],
       "members": [ <SERIALIZED USER WITHOUT CLUB FIELD>, ... ]
-      "messages": [ <SERIALIZED MESSAGES WITHOUT CLUB FIELD>, ... ]
     }
   ]
 }
 ```
 
-### 6 Get Club by Id
-User clicks on club from search for more info, Returns club info
-(Only return name, description, events)
-```
-GET /api/clubs/{id}/
-```
-Response
-```
-{
-  "success": true,
-  "data": [
-    {
-      "id": <ID>,
-      "name": <USER INPUT FOR NAME>,
-      "description": <USER INPUT FOR DESCRIPTION>,
-      "events": [ <SERIALIZED EVENTS WITHOUT TASKS/ADMINS/MEMBERS FIELDS>, ... ]
-    }
-  ]
-}
-```
-
-### 7 User Request to Join Club
+### 6) User Request to Join Club
 Return request info
 ```
 POST /api/addrequest/
@@ -179,7 +153,7 @@ Response
 }
 ```
 
-### 8 Accept/Decline Requests to Join Club (Admin)
+### 7) Accept/Decline Requests to Join Club (Admin)
 ```
 POST /api/addrequest/{id}/
 ```
@@ -205,10 +179,10 @@ Response
 }
 ```
 
-### 9 Get All Events
-User searches for events in club, Returns events
+### 8) Get Club by Id
+Returns club info by id
 ```
-GET /api/clubs/{id}/events/
+GET /api/clubs/{id}/
 ```
 Response
 ```
@@ -219,20 +193,16 @@ Response
       "id": <ID>,
       "name": <USER INPUT FOR NAME>,
       "description": <USER INPUT FOR DESCRIPTION>,
-      "date": <USER INPUT FOR DATE>,
-      "budget": <USER INPUT FOR BUDGET>,
-      "active": <USER INPUT FOR ACTIVE>,
-      "clubs": [<SERIALIZED CLUBS>, ... ],
-      "users": [<SERIALIZED USERS>, ... ],
-      "tasks": [<SERIALIZED TASKS>, ... ]
+      "events": [<SERIALIZED EVENTS>, ... ],
+      "admins": [<SERIALIZED USERS>, ... ],
+      "members": [<SERIALIZED USERS>, ... ]
     }
-    ...
   ]
 }
 ```
 
-### 10 Add Event (Admin)
-Club Admin adds new event
+### 9) Add Event
+Adds new event
 ```
 POST /api/events/
 ```
@@ -246,15 +216,18 @@ Response
     "date": <USER INPUT FOR DATE>,
     "description": <USER INPUT FOR DESCRIPTION>,
     "budget": <USER INPUT FOR BUDGET>,
-    "active": true
+    "active": true,
+    "tasks": [],
+    "clubs": [],
+    "users": []
   }
 }
 ```
 
-### 11 Add Club to Event (Admin)
-Admin adds another club (collaboration)
+### 10) Add Another Club to Event (Admin)
+Club Admin adds another club (collaboration)
 ```
-POST /api/events/addclub
+POST /api/events/addclub/
 ```
 Response
 ```
@@ -266,21 +239,93 @@ Response
     "date": <USER INPUT FOR DATE>,
     "description": <USER INPUT FOR DESCRIPTION>,
     "budget": <USER INPUT FOR BUDGET>,
-    "active": true
+    "active": true,
+    "tasks": [<SERIALIZED TASK>, ... ],
+    "clubs": [<SERIALIZED CLUB>, ... ],
+    "users": [<SERIALIZED USERS>, ... ]
   }
 }
 ```
 
-### 12 Delete event (Admin)
-``` DELETE /api/events/
+### 11) Delete event (Admin)
+``` DELETE /api/events/{id}/
+```
+Delete event
+```
+{
+  "success": true,
+  "data": {
+    "id": <ID>,
+    "name": <USER INPUT FOR NAME>,
+    "date": <USER INPUT FOR DATE>,
+    "description": <USER INPUT FOR DESCRIPTION>,
+    "budget": <USER INPUT FOR BUDGET>,
+    "active": true,
+    "tasks": [<SERIALIZED TASK>, ... ],
+    "clubs": [<SERIALIZED CLUB>, ... ],
+    "users": [<SERIALIZED USERS>, ... ]
+  }
+}
 ```
 
-### 13 Get all tasks in event
-``` GET /api/events/{id}/tasks
+### 12) Add User to Event
+``` POST /api/events/{id}/add/
+```
+User add event
+```
+{
+  "success": true,
+  "data": <SERIALIZED EVENT>
+  }
+}
 ```
 
+### 12) Create Task
 ``` POST /api/events/{id}/tasks
 ```
+```
+{
+  "success": true,
+  "data": {
+    "id": <ID>,
+    "name": <USER INPUT FOR NAME>,
+    "date": <USER INPUT FOR DATE>,
+    "description": <USER INPUT FOR DESCRIPTION>,
+    "budget": <USER INPUT FOR BUDGET>,
+    "active": true,
+    "tasks": [],
+    "clubs": [],
+    "users": []
+  }
+}
+```
 
+### 13) Delete Task
 ``` DELETE /api/events/{id}/tasks
+```
+```
+{
+  "success": true,
+  "data": {
+    "id": <ID>,
+    "name": <USER INPUT FOR NAME>,
+    "date": <USER INPUT FOR DATE>,
+    "description": <USER INPUT FOR DESCRIPTION>,
+    "budget": <USER INPUT FOR BUDGET>,
+    "active": true,
+    "tasks": [<SERIALIZED TASK>, ... ],
+    "clubs": [<SERIALIZED CLUB>, ... ],
+    "users": [<SERIALIZED USERS>, ... ]
+  }
+}
+```
+
+### 14) Add Task to User
+``` POST /api/events/{id}/tasks/add/
+```
+```
+{
+  "success": true,
+  "data": <SERIALIZED TASK>
+}
 ```
