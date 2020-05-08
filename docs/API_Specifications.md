@@ -1,7 +1,8 @@
-##API Specification
+# API Specification
 
-Create User (user makes account during sign-in)
-**POST /api/users/**
+## FRAME 1
+### Create User (user makes account during sign-in) \
+**POST /api/users/** \
 Request
 ```
 {
@@ -27,8 +28,9 @@ Response
 }
 ```
 
-Get Specific User by ID (login)
-**GET /api/users/{id}**
+## FRAME 2
+### Get Specific User by ID (login) \
+**GET /api/users/{id}** \
 Response
 ```
 {
@@ -46,8 +48,9 @@ Response
 }
 ```
 
-Get user's clubs (launch page)
-**GET /api/users/{id}/clubs/{id}/**
+## FRAME 3
+### Get user's clubs (launch page) \
+**GET /api/users/{id}/clubs/** \
 Response
 ```
 {  
@@ -76,8 +79,9 @@ Response
 }
 ```
 
-Return all clubs from DB (when user searches for clubs to add)
-**GET /api/clubs/{id}**
+## FRAME 4
+### Return all clubs from DB (when user searches for clubs to add) \
+**GET /api/clubs/** \
 Response
 ```
 {
@@ -95,8 +99,8 @@ Response
 }
 ```
 
-Add new club to DB (Admin)
-**POST /api/clubs/**
+### Add new club to DB (Admin) \
+**POST /api/clubs/** \
 Request
 ```
 {
@@ -121,8 +125,12 @@ Response
 }
 ```
 
-Delete club from DB (Admin)
-**DELETE /api/clubs/{id}**
+## FRAME 5
+### Get club by id
+**GET /api/clubs/{id}**
+
+### Delete club from DB (Admin only) \
+**DELETE /api/clubs/{id}** \
 Response
 ```
 {
@@ -140,26 +148,85 @@ Response
 }
 ```
 
-User request to join club
-**POST /api/users/{id}/clubs/{id}/add**
+## FRAME 6
+### User request to join club \
+**POST /api/addclubrequest/** \
+Request
+```
+{
+  "user_id": <USER ID>,
+  "club_id": <USER INPUT>,
+  "accepted": null
+}
+```
+Response
+```
+{
 
-Add user to club (Admin)
-**POST /api/??**
+}
+```
 
-Get all events in club
-**GET /api/clubs/{id}/events/**
+## FRAME 7
+### Accept/decline user's request to join club (Admin) \
+**POST /api/addclubrequest/{id}/** \
+Request
+```
+{
+  "accepted": true or false
+}
+```
+Response
+```
+{
+}
+```
 
-Get specific event (can be collab with multiple clubs)
-**GET /api/events/{id}**
+## FRAME 8
+### Get club's group chat \
 
-Add event (Admin)
-**GET /api/events/**
 
-Delete event (Admin)
-**GET /api/events/**
+## FRAME 9
+### Get user's active events in that club \
+**GET /api/users/{id}/clubs/{id}/events/** \
+```
+{
 
-Get all tasks in event
-**POST /api/events/{id}/task**
+}
+```
 
-Get all tasks in event
-**POST /api/events/{id}/task**
+## FRAME 10
+### Get all events (can be collab with multiple clubs) \
+**GET /api/events/** \
+
+### Add event (Admin) \
+**POST /api/events/** \
+Response
+```
+{
+  "success": true,
+  "data": {
+    "id": <ID>,
+    "name": <USER INPUT FOR NAME>,
+    "budget": <USER INPUT FOR BUDGET>
+  }
+}
+```
+
+### Delete event (Admin) \
+**DELETE /api/events/** \
+
+## FRAME 11
+### Get user's tasks \
+**GET /api/users/{id}/events/{id}/tasks** \
+
+## FRAME 12
+### Get all tasks in event \
+**GET /api/events/{id}/tasks** \
+
+## FRAME 13
+**POST /api/events/{id}/tasks** \
+
+
+
+### User send message \
+**POST /api/messages/** \
