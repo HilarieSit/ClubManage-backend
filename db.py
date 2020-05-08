@@ -161,3 +161,35 @@ class Task(db.Model):
         for item in removed_item:
             serialized_dict.pop(item)
         return serialized_dict
+
+class RequestAdd(db.Model):
+    __tablename__ = 'requestadd'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    club_id = db.Column(db.Integer, db.ForeignKey('club.id'), nullable=False)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
+    task_id = db.Column(db.Integer, db.ForeignKey('task.id'))
+    message = db.Column(db.String)
+    accepted = db.Column(db.Boolean)
+
+    def __init__(self, **kwargs):
+        self.user_id = kwargs.get('user_id', '')
+        self.club_id = kwargs.get('club_id', '')
+        self.event_id = kwargs.get('event_id', '')
+        self.task_id = kwargs.get('task_id', '')
+        self.message = kwargs.get('message', '')
+        self.accepted = kwargs.get('active', '')
+
+    def serialize(self, removed_item):
+        serialized_dict = {
+            'id': self.id,
+            'user_id': self.user_id,
+            'club_id': self.club_id,
+            'event_id': self.event_id,
+            'task_id': self.task_id,
+            'message': self.message,
+            'active': self.active
+        }
+        for item in removed_item:
+            serialized_dict.pop(item)
+        return serialized_dict

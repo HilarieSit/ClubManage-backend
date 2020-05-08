@@ -1,9 +1,26 @@
 from db import db, Course, Assignment, User
 
+# USERS ---------------------------------------------------------------
+def create_user(name, email, password):
+    new_user = User(
+        name=name,
+        email=email,
+        password=password
+    )
+    db.session.add(new_user)
+    db.session.commit()
+    return new_user.serialize(['password'])
+
+def get_user_by_id(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return None
+    # remove password
+    return user.serialize(['password'])
 
 # CLUBS --------------------------------------------------------------
 def get_all_clubs():
-    return [c.serialize() for c in Club.query.all()]
+    return [c.serialize(['events', 'admins', 'members']) for c in Club.query.all()]
 
 def create_club():
     new_club = Club(
@@ -12,13 +29,7 @@ def create_club():
     )
     db.session.add(new_club)
     db.session.commit()
-    return new_course.serialize()
-
-def get_club_by_id(club_id):
-    club = Club.query.filter_by(id=club_id).first()
-    if club is None:
-        return none
-    return club.serialize()
+    return new_club.serialize()
 
 def delete_club_by_id(club_id):
     club = Club.query.filter_by(id=club_id).first()
@@ -26,6 +37,12 @@ def delete_club_by_id(club_id):
         return None
     db.session.delete(club)
     db.session.commit()
+    return club.serialize()
+
+def get_club_by_id(club_id):
+    club = Club.query.filter_by(id=club_id).first()
+    if club is None:
+        return none
     return club.serialize()
 
 # EVENTS --------------------------------------------------------------
@@ -46,6 +63,9 @@ def get_event_by_id(event_id):
     if event is None:
         return None
     return event.serialize()
+
+def add_another_club():
+    pass
 
 def finish_event_by_id(event_id):
     event = Event.query.filter_by(id=event_id).first()
@@ -86,21 +106,18 @@ def finish_event_by_id(task_id):
     db.session.commit()
     return task.serialize()
 
-# USERS ---------------------------------------------------------------
-def create_user(name, netid):
-    new_user = User(
-        name=name,
-        email=email,
-        password=password
+# ADD REQUEST --------------------------------------------------------------
+def create_request(user_id, club_id, event_id, task_id, message, accepted):
+    new_request = RequestAdd(
+        user_id=user_id,
+        club_id=club_id,
+        event_id=event_id,
+        task_id=task_id,
+        message=message,
+        accepted=accepted
     )
-    db.session.add(new_user)
     db.session.commit()
-    return new_user.serialize()
+    return new_request.serialize()
 
-def get_user_by_id(user_id):
-    user = User.query.filter_by(id=user_id).first()
-    if user is None:
-        return None
-    return user.serialize()
 
 # TODO: assign user to club, assign user to event, assign user to task
