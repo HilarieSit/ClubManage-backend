@@ -1,8 +1,10 @@
 # API Specification
 
-## FRAME 1
-### Create User (user makes account during sign-in) \
-**POST /api/users/** \
+### Create User
+User makes account during sign-in, returns user info \
+```
+**POST /api/users/**
+```
 Request
 ```
 {
@@ -18,19 +20,23 @@ Response
   "data": [
     {
       "id": <ID>,
+      "name": <NAME>,
       "email": <USER INPUT>,
       "password": <USER INPUT>
       "clubs": [],
       "events": [],
       "tasks": [],
       "messages": []
-    },
+    }
+  ]
 }
 ```
 
-## FRAME 2
-### Get Specific User by ID (login) \
-**GET /api/users/{id}** \
+### Get Specific User by ID
+Homepage, return user's clubs, events, & tasks \
+```
+**GET /api/users/{id}/**
+```
 Response
 ```
 {
@@ -38,50 +44,23 @@ Response
   "data": [
     {
       "id": <ID>,
+      "name": <USER INPUT>,
       "email": <USER INPUT>,
-      "password": <USER INPUT>
-      "clubs": [],
-      "events": [],
-      "tasks": [],
-      "messages": []
-    },
-}
-```
-
-## FRAME 3
-### Get user's clubs (launch page) \
-**GET /api/users/{id}/clubs/** \
-Response
-```
-{  
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "name": "Intramural Volleyball",
-      "description": "Intramural volleyball team",
-      "events": [ <SERIALIZED EVENTS WITHOUT CLUB FIELD>, ... ],
-      "admins": [ <SERIALIZED USER WITHOUT CLUB FIELD>, ... ],
-      "members": [ <SERIALIZED USER WITHOUT CLUB FIELD>, ... ],
-      "messages": [ <SERIALIZED USER WITHOUT CLUB FIELD>, ... ]
-    },
-    {
-      "id": 2,
-      "name": "APO",
-      "description": "National service fraternity",
-      "events": [ <SERIALIZED EVENTS WITHOUT CLUB FIELD>, ... ],
-      "admins": [ <SERIALIZED USER WITHOUT CLUB FIELD>, ... ],
-      "members": [ <SERIALIZED USER WITHOUT CLUB FIELD>, ... ]
-      "messages": [ <SERIALIZED USER WITHOUT CLUB FIELD>, ... ]
+      "password": <USER INPUT>,
+      "clubs": [<SERIALIZED CLUBS>, ... ],
+      "events": [<SERIALIZED EVENTS>, ... ],
+      "tasks": [<SERIALIZED TASKS>, ... ],
+      "messages": [<SERIALIZED MESSAGES>, ... ]
     }
-    ...
   ]
 }
 ```
 
-## FRAME 4
-### Return all clubs from DB (when user searches for clubs to add) \
-**GET /api/clubs/** \
+### Return all clubs
+Return all clubs from DB (when user searches for clubs to add) \
+```
+**GET /api/clubs/**
+```
 Response
 ```
 {
@@ -95,12 +74,16 @@ Response
       "admins": [ <SERIALIZED USER WITHOUT CLUB FIELD>, ... ],
       "members": [ <SERIALIZED USER WITHOUT CLUB FIELD>, ... ]
       "messages": [ <SERIALIZED USER WITHOUT CLUB FIELD>, ... ]
-    },
+    }
+    ...
+  ]
 }
 ```
 
-### Add new club to DB (Admin) \
-**POST /api/clubs/** \
+### Add new club to DB (Admin)
+```
+**POST /api/clubs/**
+```
 Request
 ```
 {
@@ -125,12 +108,33 @@ Response
 }
 ```
 
-## FRAME 5
 ### Get club by id
-**GET /api/clubs/{id}**
+```
+**GET /api/clubs/{id}/**
+```
+Response
+```
+{
+  "success": true,
+  "data": [
+    {
+      "id": <ID>,
+      "name": <USER INPUT FOR NAME>,
+      "description": <USER INPUT FOR DESCRIPTION>,
+      "events": [<SERIALIZED CLUBS WITHOUT CLUB FIELD>, ... ],
+      "admins": [<SERIALIZED USERS WITHOUT CLUB FIELD>, ... ],
+      "members": [<SERIALIZED USERS WITHOUT CLUB FIELD>, ... ],
+      "messages": [<SERIALIZED MESSAGES WITHOUT CLUB FIELD>, ... ]
+    }
+    ...
+  ]
+}
+```
 
-### Delete club from DB (Admin only) \
-**DELETE /api/clubs/{id}** \
+### Delete club from DB (Admin only)
+```
+**DELETE /api/clubs/{id}/**
+```
 Response
 ```
 {
@@ -143,18 +147,20 @@ Response
       "events": [ <SERIALIZED EVENTS WITHOUT CLUB FIELD>, ... ],
       "admins": [ <SERIALIZED USER WITHOUT CLUB FIELD>, ... ],
       "members": [ <SERIALIZED USER WITHOUT CLUB FIELD>, ... ]
-      "messages": [ <SERIALIZED USER WITHOUT CLUB FIELD>, ... ]
-    },
+      "messages": [ <SERIALIZED MESSAGES WITHOUT CLUB FIELD>, ... ]
+    }
+  ]
 }
 ```
 
-## FRAME 6
-### User request to join club \
-**POST /api/addclubrequest/** \
+### User request to join club
+```
+**POST /api/addrequest/**
+```
 Request
 ```
 {
-  "user_id": <USER ID>,
+  "user_id": <USER INPUT>,
   "club_id": <USER INPUT>,
   "accepted": null
 }
@@ -162,13 +168,25 @@ Request
 Response
 ```
 {
-
+  "success": true,
+  "data": [
+    {
+      "id": <ID>,
+      "name": <USER INPUT FOR NAME>,
+      "description": <USER INPUT FOR DESCRIPTION>,
+      "events": [<SERIALIZED CLUBS WITHOUT CLUB FIELD>, ... ],
+      "admins": [<SERIALIZED USERS WITHOUT CLUB FIELD>, ... ],
+      "members": [<SERIALIZED USERS WITHOUT CLUB FIELD>, ... ],
+      "messages": [<SERIALIZED MESSAGES WITHOUT CLUB FIELD>, ... ]
+    }
+  ]
 }
 ```
 
-## FRAME 7
-### Accept/decline user's request to join club (Admin) \
-**POST /api/addclubrequest/{id}/** \
+### Accept/decline user's request to join club (Admin)
+```
+**POST /api/addrequest/{id}/**
+```
 Request
 ```
 {
@@ -178,28 +196,50 @@ Request
 Response
 ```
 {
+  "success": true,
+  "data": [
+    {
+      "id": <ID>,
+      "name": <USER INPUT FOR NAME>,
+      "description": <USER INPUT FOR DESCRIPTION>,
+      "events": [<SERIALIZED EVENTS>, ... ],
+      "admins": [<SERIALIZED USERS>, ... ],
+      "members": [<SERIALIZED USERS>, ... ],
+      "messages": [<SERIALIZED MESSAGES>, ... ]
+    }
+  ]
 }
 ```
 
-## FRAME 8
-### Get club's group chat \
-
-
-## FRAME 9
-### Get user's active events in that club \
-**GET /api/users/{id}/clubs/{id}/events/** \
+### Get all events
+```
+**GET /api/clubs/{id}/events/**
+```
+Response
 ```
 {
-
+  "success": true,
+  "data": [
+    {
+      "id": <ID>,
+      "name": <USER INPUT FOR NAME>,
+      "description": <USER INPUT FOR DESCRIPTION>,
+      "date": <USER INPUT FOR DATE>,
+      "budget": <USER INPUT FOR BUDGET>,
+      "active": <USER INPUT FOR ACTIVE>,
+      "clubs": [<SERIALIZED CLUBS>, ... ],
+      "users": [<SERIALIZED USERS>, ... ],
+      "tasks": [<SERIALIZED TASKS>, ... ]
+    }
+    ...
+  ]
 }
 ```
 
-## FRAME 10
-### Get all events (can be collab with multiple clubs) \
-**GET /api/events/** \
-
-### Add event (Admin) \
-**POST /api/events/** \
+### Add event (Admin)
+```
+**POST /api/events/**
+```
 Response
 ```
 {
@@ -212,21 +252,32 @@ Response
 }
 ```
 
-### Delete event (Admin) \
-**DELETE /api/events/** \
+### Add club to event (Admin)
+```
+**POST /api/events/addclub**
+```
+Response
+```
+{
+  "success": true,
+  "data": {
+    "id": <ID>,
+    "name": <USER INPUT FOR NAME>,
+    "budget": <USER INPUT FOR BUDGET>
+  }
+}
+```
 
-## FRAME 11
-### Get user's tasks \
-**GET /api/users/{id}/events/{id}/tasks** \
+### Delete event (Admin)
+``` **DELETE /api/events/**
+```
 
-## FRAME 12
-### Get all tasks in event \
-**GET /api/events/{id}/tasks** \
+### Get all tasks in event
+``` **GET /api/events/{id}/tasks**
+```
 
-## FRAME 13
-**POST /api/events/{id}/tasks** \
+``` **POST /api/events/{id}/tasks**
+```
 
-
-
-### User send message \
-**POST /api/messages/** \
+``` **DELETE /api/events/{id}/tasks**
+```
