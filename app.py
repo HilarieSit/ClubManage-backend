@@ -25,7 +25,7 @@ def failure_response(message, code=404):
 
 ### ROUTES
 
-# USERS ------------------------------------------------------------------------
+# USERS
 @app.route('/api/users/', methods=['POST'])
 def create_user():
     body = json.loads(request.data)
@@ -38,9 +38,9 @@ def create_user():
 
 @app.route('/api/users/<int:user_id>/')
 def get_user():
-    return success_response(dao.get_user_by_id())
+    return success_response(dao.get_user_by_id(user_id))
 
-# CLUBS ------------------------------------------------------------------------
+# CLUBS
 @app.route('/api/clubs/')
 def get_clubs():
     return success_response(dao.get_all_clubs())
@@ -68,7 +68,7 @@ def get_club(club_id):
         return failure_response("Club not found")
     return success_response(club)
 
-# EVENTS -----------------------------------------------------------------------
+# EVENTS
 @app.route('/api/events/', methods=['POST'])
 def create_event():
     body = json.loads(request.data)
@@ -99,7 +99,7 @@ def add_club_to_event(event_id):
     )
     return success_response(event)
 
-# TASKS ------------------------------------------------------------------------
+# TASKS
 @app.route('/api/events/<int:event_id>/tasks/', methods=['POST'])
 def create_task(event_id):
     event = dao.get_event_by_id(event_id)
@@ -115,33 +115,63 @@ def create_task(event_id):
     )
     return success_response(task)
 
-@app.route('/api/events/<int:event_id>/tasks/<int:task_id>', methods=['DELETE'])
+@app.route('/api/events/<int:event_id>/tasks/<int:task_id>/', methods=['DELETE'])
 def delete_task(task_id):
     task = dao.delete_task_by_id(task_id)
     if task is None:
         return failure_response("Task not found")
     return success_response(task)
 
-# REQUEST -----------------------------------------------------------------------
-# @app.route('/api/addrequest/', methods=['POST'])
-# def addrequest:
-#     body = json.loads(request.data)
-#
-#     pass
-#
-# @app.route('/api/addrequest/<int:request_id>', methods=['POST'])
-# def accept_deny_request(request_id):
-#     body = json.loads(request.data)
-#     addreq = dao.get_request_by_id(request_id)
-#     if addreq is None:
-#         return failure_response("Request not found")
-#     current_state = addreq.get('accepted')
-#     if current_state is None:
-#         # either accept or deny
-#         admin_response = body.get('accepted')
-#         # dao.add_user()
-#         return success_response(dao.add_user())
-#     return failure_response("Cannot change request already accepted/denied")
+# REQUEST
+@app.route('/api/addrequest/', methods=['POST'])
+def addrequest:
+    body = json.loads(request.data)
+    # request to join club requires admin approval
+    addrequest = dao.create_request(
+        user_id=body.get("user_id"),
+        club_id=body.get("club_id"),
+        message=body.get("message"),
+        accepted=body.get("accepted")
+    )
+    return success_response(addrequest, 201)
+
+@app.route('/api/events/<int:event_id>/adduser/', methods=['POST'])
+def add_user_to_event(event_id):
+    body = json.loads(request.data)
+    user = dao.addevent2user(user_id, event_id)
+    if user is None:
+        return failure_response("Event not found")
+    return success_response(user)
+
+@app.route('/api/events/<int:event_id>/tasks/<int:task_id>/adduser/', methods=['POST'])
+def add_user_to_task(task_id):
+    body = json.loads(request.data)
+    user = dao.addtask2user(user_id, task_id)
+    if user is None:
+        return failure_response("User not found")
+    return success_response(user)
+
+@app.route('/api/addrequest/<int:request_id>', methods=['POST'])
+def accept_deny_request(request_id):
+    body = json.loads(request.data)
+    addreq = dao.get_request_by_id(request_id)
+    if addreq is None:
+        return failure_response("Request not found")
+    current_state = addreq.get('accepted')
+    if current_state is None:
+        # either accept or deny
+        user_id = body.get("user_id")
+        club_id = body.get("club_id")
+        admin_response = body.get('accepted')
+        if admin_response is True:
+            admin_response = body.get('accepted')
+            user = dao.adduser2club(user_id, club_id)
+            return success_response(user)
+        else:
+            user = dao.get_user_by_id(user_id)
+            return success_response(user)
+    # if accepted is not null
+    return failure_response("Cannot change request already accepted/denied")
 
 
 if __name__ == "__main__":

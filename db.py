@@ -37,7 +37,7 @@ class User(db.Model):
     admin_clubs = db.relationship('Club', secondary=clubs_admins_assoc, back_populates='admins')
     member_clubs = db.relationship('Club', secondary=clubs_members_assoc, back_populates='members')
     events = db.relationship('Event', secondary=events_users_assoc, back_populates='users')
-    tasks = db.relationship('Task', back_populates='users')
+    tasks = db.relationship('Task', secondary=tasks_users_assoc, back_populates='users')
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('name', '')
@@ -78,9 +78,9 @@ class Club(db.Model):
             'id': self.id,
             'name': self.name,
             'description': self.discription,
-            'events': [e.serialize_no_course() for e in self.events],
-            'admins': [a.serialize_no_course() for a in self.admins],
-            'members': [m.serialize_no_course() for m in self.members]
+            'events': [e.serialize(["clubs"]) for e in self.events],
+            'admins': [a.serialize(["clubs"]) for a in self.admins],
+            'members': [m.serialize(["clubs"]) for m in self.members]
         }
         for item in removed_item:
             serialized_dict.pop(item)
@@ -110,9 +110,9 @@ class Events(db.Model):
             'description': self.discription,
             'date': self.date,
             'budget': self.budget,
-            'tasks': [t.serialize_no_course() for t in self.tasks],
-            'clubs': [c.serialize_no_course() for c in self.clubs],
-            'users': [u.serialize_no_course() for u in self.users],
+            'tasks': [t.serialize(["events"]) for t in self.tasks],
+            'clubs': [c.serialize(["events"]) for c in self.clubs],
+            'users': [u.serialize(["events"]) for u in self.users],
         }
         for item in removed_item:
             serialized_dict.pop(item)
@@ -143,27 +143,23 @@ class Task(db.Model):
             'date': self.date,
             'budget': self.budget,
             'event': self.event,
-            'users': [u.serialize() for u in self.users],
+            'users': [u.serialize(["tasks"]) for u in self.users],
         }
         for item in removed_item:
             serialized_dict.pop(item)
         return serialized_dict
 
-class RequestAdd(db.Model):
-    __tablename__ = 'requestadd'
+class JoinRequest(db.Model):
+    __tablename__ = 'joinrequest'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False)
     club_id = db.Column(db.Integer, db.ForeignKey('club.id'), nullable=False)
-    event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
-    task_id = db.Column(db.Integer, db.ForeignKey('task.id'))
     message = db.Column(db.String)
     accepted = db.Column(db.Boolean)
 
     def __init__(self, **kwargs):
         self.user_id = kwargs.get('user_id', '')
         self.club_id = kwargs.get('club_id', '')
-        self.event_id = kwargs.get('event_id', '')
-        self.task_id = kwargs.get('task_id', '')
         self.message = kwargs.get('message', '')
         self.accepted = kwargs.get('accepted', '')
 
@@ -172,8 +168,6 @@ class RequestAdd(db.Model):
             'id': self.id,
             'user_id': self.user_id,
             'club_id': self.club_id,
-            'event_id': self.event_id,
-            'task_id': self.task_id,
             'message': self.message,
             'accepted': self.accepted
         }

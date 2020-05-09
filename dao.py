@@ -1,6 +1,6 @@
 from db import db, Course, Assignment, User
 
-# USERS ---------------------------------------------------------------
+# USERS
 def create_user(name, email, password):
     new_user = User(
         name=name,
@@ -18,7 +18,7 @@ def get_user_by_id(user_id):
     # remove password
     return user.serialize(['password'])
 
-# CLUBS --------------------------------------------------------------
+# CLUBS
 def get_all_clubs():
     return [c.serialize(['events', 'admins', 'members']) for c in Club.query.all()]
 
@@ -45,7 +45,7 @@ def get_club_by_id(club_id):
         return none
     return club.serialize()
 
-# EVENTS --------------------------------------------------------------
+# EVENTS
 def create_event():
     new event = Event(
         name=name,
@@ -65,25 +65,13 @@ def delete_event_by_id(event_id):
     db.session.commit()
     return club.serialize()
 
-def addclub2event(event_id, club_id):
-    event = Event.query.filter_by(id=event_id).first()
-    if event is None:
-        return None
-
-    club = Club.query.filter_by(id=club_id).first()
-    if club is None:
-        return None
-
-    event.clubs.append(club)
-    db.session.commit()
-
 def get_event_by_id(event_id):
     event = Event.query.filter_by(id=event_id).first()
     if event is None:
         return None
     return event.serialize()
 
-# TASKS --------------------------------------------------------------
+# TASKS
 def create_task():
     new_task = Task(
         name=name,
@@ -101,15 +89,69 @@ def get_task_by_id(task_id):
         return None
     return task.serialize()
 
-# ADD REQUEST --------------------------------------------------------------
-def create_request(user_id, club_id, event_id, task_id, message, accepted):
-    new_request = RequestAdd(
+# ADD REQUESTS
+def create_request(user_id, club_id, message, accepted):
+    new_request = JoinRequest(
         user_id=user_id,
-        club_id=club_id,
-        event_id=event_id,
-        task_id=task_id,
+        club_id=club_id
         message=message,
         accepted=accepted
     )
+    db.session.add(new_request)
     db.session.commit()
     return new_request.serialize()
+
+def adduser2club(user_id, club_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return None
+
+    club = Club.query.filter_by(id=event_id).first()
+    if event is None:
+        return None
+
+    user.clubs.append(club)
+    db.session.commit()
+    updated_club = Club.query.filter_by(id=event_id).first()
+    return updated_club.serialize()
+
+def addclub2event(event_id, club_id):
+    event = Event.query.filter_by(id=event_id).first()
+    if event is None:
+        return None
+
+    club = Club.query.filter_by(id=club_id).first()
+    if club is None:
+        return None
+
+    event.clubs.append(club)
+    db.session.commit()
+    return event.serialize()
+
+def addevent2user(user_id, event_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return None
+
+    event = Event.query.filter_by(id=event_id).first()
+    if event is None:
+        return None
+
+    user.events.append(event)
+    db.session.commit()
+    updated_event = Event.query.filter_by(id=event_id).first()
+    return updated_event.serialize()
+
+def addtask2user(user_id, task_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return None
+
+    task = Task.query.filter_by(id=task_id).first()
+    if task is None:
+        return None
+
+    user.tasks.append(task)
+    db.session.commit()
+    updated_task = Task.query.filter_by(id=task_id).first()
+    return updated_task.serialize()

@@ -1,3 +1,3 @@
 # backend-final-project
 
-[API Specifications](docs/API_Specifications.md)
+[API Specification](docs/API_Specification.md)
