@@ -51,27 +51,11 @@ def create_event():
         name=name,
         description=description,
         date=date,
-        budget=budget,
-        active=True
+        budget=budget
     )
     db.session.add(new_club)
     db.session.commit()
     return new_task.serialize()
-
-def get_event_by_id(event_id):
-    event = Event.query.filter_by(id=event_id).first()
-    if event is None:
-        return None
-    return event.serialize()
-
-def add_another_club():
-    pass
-
-def finish_event_by_id(event_id):
-    event = Event.query.filter_by(id=event_id).first()
-    event.active = False
-    db.session.commit()
-    return event.serialize()
 
 def delete_event_by_id(event_id):
     event = Event.query.filter_by(id=event_id).first()
@@ -81,14 +65,31 @@ def delete_event_by_id(event_id):
     db.session.commit()
     return club.serialize()
 
+def addclub2event(event_id, club_id):
+    event = Event.query.filter_by(id=event_id).first()
+    if event is None:
+        return None
+
+    club = Club.query.filter_by(id=club_id).first()
+    if club is None:
+        return None
+
+    event.clubs.append(club)
+    db.session.commit()
+
+def get_event_by_id(event_id):
+    event = Event.query.filter_by(id=event_id).first()
+    if event is None:
+        return None
+    return event.serialize()
+
 # TASKS --------------------------------------------------------------
 def create_task():
     new_task = Task(
         name=name,
         description=description,
         date=date,
-        budget=budget,
-        active=True
+        budget=budget
     )
     db.session.add(new_club)
     db.session.commit()
@@ -98,12 +99,6 @@ def get_task_by_id(task_id):
     task = Task.query.filter_by(id=task_id).first()
     if task is None:
         return None
-    return task.serialize()
-
-def finish_event_by_id(task_id):
-    task = Task.query.filter_by(id=task_id).first()
-    task.active = False
-    db.session.commit()
     return task.serialize()
 
 # ADD REQUEST --------------------------------------------------------------
@@ -118,6 +113,3 @@ def create_request(user_id, club_id, event_id, task_id, message, accepted):
     )
     db.session.commit()
     return new_request.serialize()
-
-
-# TODO: assign user to club, assign user to event, assign user to task

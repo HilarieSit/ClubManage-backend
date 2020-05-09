@@ -61,8 +61,6 @@ class User(db.Model):
         return serialized_dict
 
 class Club(db.Model):
-    """ many-to-many users
-        many-to-many events """
     __tablename__ = 'club'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
@@ -89,16 +87,12 @@ class Club(db.Model):
         return serialized_dict
 
 class Events(db.Model):
-    """ many-to-many clubs
-        many-to-many users
-        one-to-many tasks """
-    __tablename__ = 'events'
+    __tablename__ = 'event'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
     date = db.Column(db.String, nullable=False)
     budget = db.Column(db.Float, nullable=True)
-    active = db.Column(db.Boolean, nullable=False)
     tasks = db.relationship('Task', cascade='delete')
     clubs = db.relationship('Club', secondary=clubs_events_assoc, back_populates='events')
     users = db.relationship('User', secondary=events_users_assoc, back_populates='events')
@@ -108,7 +102,6 @@ class Events(db.Model):
         self.description = kwargs.get('description', '')
         self.date = kwargs.get('date', '')
         self.budget = kwargs.get('budget', '')
-        self.active = kwargs.get('active', '')
 
     def serialize(self):
         serialized_dict = {
@@ -117,7 +110,6 @@ class Events(db.Model):
             'description': self.discription,
             'date': self.date,
             'budget': self.budget,
-            'active': self.active,
             'tasks': [t.serialize_no_course() for t in self.tasks],
             'clubs': [c.serialize_no_course() for c in self.clubs],
             'users': [u.serialize_no_course() for u in self.users],
@@ -127,15 +119,12 @@ class Events(db.Model):
         return serialized_dict
 
 class Task(db.Model):
-    """ 1-many with events
-        many-many with users """
     __tablename__ = 'task'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
     date = db.Column(db.String, nullable=False)
     budget = db.Column(db.Float, nullable=True)
-    active = db.Column(db.Boolean, nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
     event = db.relationship("Event", back_populates="tasks")
     users = db.relationship('User', secondary=tasks_users_assoc, back_populates='tasks')
@@ -145,7 +134,6 @@ class Task(db.Model):
         self.description = kwargs.get('description', '')
         self.date = kwargs.get('date', '')
         self.budget = kwargs.get('budget', '')
-        self.active = kwargs.get('active', '')
 
     def serialize(self, removed_item):
         serialized_dict = {
@@ -154,8 +142,7 @@ class Task(db.Model):
             'description': self.discription,
             'date': self.date,
             'budget': self.budget,
-            'active': self.active,
-            'event': self.event
+            'event': self.event,
             'users': [u.serialize() for u in self.users],
         }
         for item in removed_item:
@@ -178,7 +165,7 @@ class RequestAdd(db.Model):
         self.event_id = kwargs.get('event_id', '')
         self.task_id = kwargs.get('task_id', '')
         self.message = kwargs.get('message', '')
-        self.accepted = kwargs.get('active', '')
+        self.accepted = kwargs.get('accepted', '')
 
     def serialize(self, removed_item):
         serialized_dict = {
@@ -188,7 +175,7 @@ class RequestAdd(db.Model):
             'event_id': self.event_id,
             'task_id': self.task_id,
             'message': self.message,
-            'active': self.active
+            'accepted': self.accepted
         }
         for item in removed_item:
             serialized_dict.pop(item)

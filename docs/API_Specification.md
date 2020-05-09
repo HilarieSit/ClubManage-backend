@@ -123,8 +123,8 @@ Response
 }
 ```
 
-### 6) User Request to Join Club
-Return request info
+### 6) User Request to Join Club/Event/Task
+Return request info (for joining club, set accepted = null (require admin approval))
 ```
 POST /api/addrequest/
 ```
@@ -133,8 +133,10 @@ Request
 {
   "user_id": <USER INPUT>,
   "club_id": <USER INPUT>,
-  "message": <USER INPUT>,
-  "accepted": null
+  "event_id": <USER INPUT> or null,
+  "task_id": <USER INPUT> or null,
+  "message": <USER INPUT> or null,
+  "accepted": true or null
 }
 ```
 Response
@@ -146,6 +148,9 @@ Response
       "id": <ID>,
       "time": <NOW>,
       "user_id": <USER INPUT FOR NAME>,
+      "club_id": <USER INPUT FOR CLUB ID>,
+      "event_id": <USER INPUT FOR EVENT ID>,
+      "task_id": <USER INPUT FOR TASK ID>,
       "message": <USER INPUT FOR MESSAGE>
       "accepted": <USER INPUT FOR ACCEPTED>
     }
@@ -154,28 +159,22 @@ Response
 ```
 
 ### 7) Accept/Decline Requests to Join Club (Admin)
+Admin accepts or declines request & set user type
 ```
 POST /api/addrequest/{id}/
 ```
 Request
 ```
 {
-  "accepted": true or false
+  "accepted": true or false,
+  "type": "admin" or "member"
 }
 ```
 Response
 ```
 {
   "success": true,
-  "data": [
-    {
-      "id": <ID>,
-      "time": <NOW>,
-      "user_id": <USER INPUT FOR NAME>,
-      "message": <USER INPUT FOR MESSAGE>
-      "accepted": <USER INPUT FOR ACCEPTED>
-    }
-  ]
+  "data": <SERIALIZED CLUB>
 }
 ```
 
@@ -193,9 +192,9 @@ Response
       "id": <ID>,
       "name": <USER INPUT FOR NAME>,
       "description": <USER INPUT FOR DESCRIPTION>,
-      "events": [<SERIALIZED EVENTS>, ... ],
-      "admins": [<SERIALIZED USERS>, ... ],
-      "members": [<SERIALIZED USERS>, ... ]
+      "events": [<SERIALIZED EVENTS WITHOUT CLUB INFO>, ... ],
+      "admins": [<SERIALIZED USERS WITHOUT CLUB INFO>, ... ],
+      "members": [<SERIALIZED USERS WITHOUT CLUB INFO>, ... ]
     }
   ]
 }
@@ -206,6 +205,15 @@ Adds new event
 ```
 POST /api/events/
 ```
+Request
+```
+{
+  "name": <USER INPUT>,
+  "date": <USER INPUT>,
+  "description": <USER INPUT>,
+  "budget": <USER INPUT>
+}
+```
 Response
 ```
 {
@@ -216,7 +224,6 @@ Response
     "date": <USER INPUT FOR DATE>,
     "description": <USER INPUT FOR DESCRIPTION>,
     "budget": <USER INPUT FOR BUDGET>,
-    "active": true,
     "tasks": [],
     "clubs": [],
     "users": []
@@ -227,7 +234,26 @@ Response
 ### 10) Add Another Club to Event (Admin)
 Club Admin adds another club (collaboration)
 ```
-POST /api/events/addclub/
+POST /api/events/{id}/addclub/
+```
+Request
+```
+{
+  "club_id": <USER INPUT>
+}
+```
+Response
+```
+{
+  "success": true,
+  "data": <SERIALIZED EVENT>
+}
+```
+
+### 11) Delete event
+Delete event
+```
+DELETE /api/events/{id}/
 ```
 Response
 ```
@@ -239,53 +265,28 @@ Response
     "date": <USER INPUT FOR DATE>,
     "description": <USER INPUT FOR DESCRIPTION>,
     "budget": <USER INPUT FOR BUDGET>,
-    "active": true,
-    "tasks": [<SERIALIZED TASK>, ... ],
-    "clubs": [<SERIALIZED CLUB>, ... ],
-    "users": [<SERIALIZED USERS>, ... ]
-  }
-}
-```
-
-### 11) Delete event (Admin)
-```
-DELETE /api/events/{id}/
-```
-Delete event
-```
-{
-  "success": true,
-  "data": {
-    "id": <ID>,
-    "name": <USER INPUT FOR NAME>,
-    "date": <USER INPUT FOR DATE>,
-    "description": <USER INPUT FOR DESCRIPTION>,
-    "budget": <USER INPUT FOR BUDGET>,
-    "active": true,
-    "tasks": [<SERIALIZED TASK>, ... ],
-    "clubs": [<SERIALIZED CLUB>, ... ],
-    "users": [<SERIALIZED USERS>, ... ]
-  }
-}
-```
-
-### 12) Add User to Event
-```
-POST /api/events/{id}/add/
-```
-User add event
-```
-{
-  "success": true,
-  "data": <SERIALIZED EVENT>
+    "tasks": [<SERIALIZED TASK WITHOUT EVENT INFO>, ... ],
+    "clubs": [<SERIALIZED CLUB WITHOUT EVENT INFO>, ... ],
+    "users": [<SERIALIZED USERS WITHOUT EVENT INFO>, ... ]
   }
 }
 ```
 
 ### 12) Create Task
+Create task
 ```
 POST /api/events/{id}/tasks/
 ```
+Request
+```
+{
+  "name": <USER INPUT>,
+  "date": <USER INPUT>,
+  "description": <USER INPUT>,
+  "budget": <USER INPUT>
+}
+```
+Response
 ```
 {
   "success": true,
@@ -295,7 +296,6 @@ POST /api/events/{id}/tasks/
     "date": <USER INPUT FOR DATE>,
     "description": <USER INPUT FOR DESCRIPTION>,
     "budget": <USER INPUT FOR BUDGET>,
-    "active": true,
     "tasks": [],
     "clubs": [],
     "users": []
@@ -304,9 +304,11 @@ POST /api/events/{id}/tasks/
 ```
 
 ### 13) Delete Task
+
 ```
 DELETE /api/events/{id}/tasks/
 ```
+Response
 ```
 {
   "success": true,
@@ -316,21 +318,9 @@ DELETE /api/events/{id}/tasks/
     "date": <USER INPUT FOR DATE>,
     "description": <USER INPUT FOR DESCRIPTION>,
     "budget": <USER INPUT FOR BUDGET>,
-    "active": true,
     "tasks": [<SERIALIZED TASK>, ... ],
     "clubs": [<SERIALIZED CLUB>, ... ],
     "users": [<SERIALIZED USERS>, ... ]
   }
-}
-```
-
-### 14) Add Task to User
-```
-POST /api/events/{id}/tasks/add/
-```
-```
-{
-  "success": true,
-  "data": <SERIALIZED TASK>
 }
 ```
