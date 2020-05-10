@@ -45,14 +45,17 @@ def get_user(user_id):
 def get_clubs():
     return success_response(dao.get_all_clubs())
 
-@app.route('/api/clubs/', methods=['POST'])
-def create_club():
+@app.route('/api/users/<int:user_id>/clubs/', methods=['POST'])
+def create_club(user_id):
     body = json.loads(request.data)
     club = dao.create_club(
         name = body.get('name'),
         description = body.get('description')
     )
-    return success_response(club, 201)
+    club_id = club.get('id')
+    # add user as admin to club
+    updated_club = dao.adduser2club(user_id, club_id, 'admin')
+    return success_response(updated_club, 201)
 
 @app.route('/api/clubs/<int:club_id>/', methods=['DELETE'])
 def delete_club(club_id):
@@ -101,6 +104,14 @@ def add_club_to_event(event_id):
     )
     return success_response(event)
 
+@app.route('/api/events/<int:event_id>/')
+def get_event(event_id):
+    event = dao.get_event_by_id(event_id)
+    if event is None:
+        return failure_response("Event not found")
+    return success_response(event)
+
+
 # TASKS
 @app.route('/api/events/<int:event_id>/tasks/', methods=['POST'])
 def create_task(event_id):
@@ -112,12 +123,13 @@ def create_task(event_id):
         name = body.get('name'),
         description = body.get('description'),
         date = body.get('date'),
-        budget = body.get('budget')
+        budget = body.get('budget'),
+        event_id = event_id
     )
     return success_response(task)
 
-@app.route('/api/events/<int:event_id>/tasks/<int:task_id>/', methods=['DELETE'])
-def delete_task(event_id, task_id):
+@app.route('/api/tasks/<int:task_id>/', methods=['DELETE'])
+def delete_task(task_id):
     task = dao.delete_task_by_id(task_id)
     if task is None:
         return failure_response("Task not found")
@@ -139,20 +151,20 @@ def addrequest():
 @app.route('/api/events/<int:event_id>/adduser/', methods=['POST'])
 def add_user_to_event(event_id):
     body = json.loads(request.data)
-    user = dao.addevent2user(user_id, event_id)
+    user = dao.addevent2user(body.get('user_id'), event_id)
     if user is None:
         return failure_response("Event not found")
     return success_response(user)
 
-@app.route('/api/events/<int:event_id>/tasks/<int:task_id>/adduser/', methods=['POST'])
+@app.route('/api/tasks/<int:task_id>/adduser/', methods=['POST'])
 def add_user_to_task(task_id):
     body = json.loads(request.data)
-    user = dao.addtask2user(user_id, task_id)
+    user = dao.addtask2user(body.get('user_id'), task_id)
     if user is None:
         return failure_response("User not found")
     return success_response(user)
 
-@app.route('/api/addrequest/<int:request_id>', methods=['POST'])
+@app.route('/api/addrequest/<int:request_id>/', methods=['POST'])
 def accept_deny_request(request_id):
     body = json.loads(request.data)
     addreq = dao.get_request_by_id(request_id)
@@ -161,12 +173,12 @@ def accept_deny_request(request_id):
     current_state = addreq.get('accepted')
     if current_state is None:
         # either accept or deny
-        user_id = body.get("user_id")
-        club_id = body.get("club_id")
-        admin_response = body.get('accepted')
+        user_id = addreq.get("user_id")
+        club_id = addreq.get("club_id")
+        admin_response = body.get("accepted")
         if admin_response is True:
-            admin_response = body.get('accepted')
-            user = dao.adduser2club(user_id, club_id)
+            type = body.get('type')
+            user = dao.adduser2club(user_id, club_id, type)
             return success_response(user)
         else:
             user = dao.get_user_by_id(user_id)
