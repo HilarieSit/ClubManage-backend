@@ -44,7 +44,7 @@ class User(db.Model):
         self.email = kwargs.get('email', '')
         self.password = kwargs.get('password', '')
 
-    def serialize(self):
+    def serialize(self, removed_item=None):
         all_clubs = [a.serialize() for a in self.admin_clubs]
         all_clubs.extend([m.serialize() for m in self.member_clubs])
         serialized_dict = {
@@ -56,8 +56,9 @@ class User(db.Model):
             'events': [e.serialize() for e in self.events],
             'tasks': [t.serialize() for u in self.tasks],
         }
-        for item in removed_item:
-            serialized_dict.pop(item)
+        if removed_item is not None:
+            for item in removed_item:
+                serialized_dict.pop(item)
         return serialized_dict
 
 class Club(db.Model):
@@ -73,20 +74,22 @@ class Club(db.Model):
         self.name = kwargs.get('name', '')
         self.description = kwargs.get('description', '')
 
-    def serialize(self):
+    def serialize(self, removed_item=None, nested_remove=None):
         serialized_dict = {
             'id': self.id,
             'name': self.name,
-            'description': self.discription,
-            'events': [e.serialize(["clubs"]) for e in self.events],
-            'admins': [a.serialize(["clubs"]) for a in self.admins],
-            'members': [m.serialize(["clubs"]) for m in self.members]
+            'description': self.description,
+            'events': [e.serialize(removed_item=nested_remove) for e in self.events],
+            'admins': [a.serialize(removed_item=nested_remove) for a in self.admins],
+            'members': [m.serialize(removed_item=nested_remove) for m in self.members]
         }
-        for item in removed_item:
-            serialized_dict.pop(item)
+        if removed_item is not None:
+            for item in removed_item:
+                serialized_dict.pop(item)
         return serialized_dict
 
-class Events(db.Model):
+
+class Event(db.Model):
     __tablename__ = 'event'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
@@ -103,19 +106,20 @@ class Events(db.Model):
         self.date = kwargs.get('date', '')
         self.budget = kwargs.get('budget', '')
 
-    def serialize(self):
+    def serialize(self, removed_item=None, nested_remove=None):
         serialized_dict = {
             'id': self.id,
             'name': self.name,
-            'description': self.discription,
+            'description': self.description,
             'date': self.date,
             'budget': self.budget,
-            'tasks': [t.serialize(["events"]) for t in self.tasks],
-            'clubs': [c.serialize(["events"]) for c in self.clubs],
-            'users': [u.serialize(["events"]) for u in self.users],
+            'tasks': [t.serialize(removed_item=["events"]) for t in self.tasks],
+            'clubs': [c.serialize(removed_item=["events"]) for c in self.clubs],
+            'users': [u.serialize(removed_item=["events"]) for u in self.users],
         }
-        for item in removed_item:
-            serialized_dict.pop(item)
+        if removed_item is not None:
+            for item in removed_item:
+                serialized_dict.pop(item)
         return serialized_dict
 
 class Task(db.Model):
@@ -135,18 +139,19 @@ class Task(db.Model):
         self.date = kwargs.get('date', '')
         self.budget = kwargs.get('budget', '')
 
-    def serialize(self, removed_item):
+    def serialize(self, removed_item=None, nested_remove=None):
         serialized_dict = {
             'id': self.id,
             'name': self.name,
-            'description': self.discription,
+            'description': self.description,
             'date': self.date,
             'budget': self.budget,
             'event': self.event,
             'users': [u.serialize(["tasks"]) for u in self.users],
         }
-        for item in removed_item:
-            serialized_dict.pop(item)
+        if removed_item is not None:
+            for item in removed_item:
+                serialized_dict.pop(item)
         return serialized_dict
 
 class JoinRequest(db.Model):
@@ -163,7 +168,7 @@ class JoinRequest(db.Model):
         self.message = kwargs.get('message', '')
         self.accepted = kwargs.get('accepted', '')
 
-    def serialize(self, removed_item):
+    def serialize(self, removed_item=None, nested_remove=None):
         serialized_dict = {
             'id': self.id,
             'user_id': self.user_id,
@@ -171,6 +176,7 @@ class JoinRequest(db.Model):
             'message': self.message,
             'accepted': self.accepted
         }
-        for item in removed_item:
-            serialized_dict.pop(item)
+        if removed_item is not None:
+            for item in removed_item:
+                serialized_dict.pop(item)
         return serialized_dict

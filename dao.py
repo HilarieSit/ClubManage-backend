@@ -1,4 +1,4 @@
-from db import db, Course, Assignment, User
+from db import db, User, Club, Event, Task, JoinRequest
 
 # USERS
 def create_user(name, email, password):
@@ -9,27 +9,27 @@ def create_user(name, email, password):
     )
     db.session.add(new_user)
     db.session.commit()
-    return new_user.serialize(['password'])
+    return new_user.serialize(removed_item=['password'])
 
 def get_user_by_id(user_id):
     user = User.query.filter_by(id=user_id).first()
     if user is None:
         return None
     # remove password
-    return user.serialize(['password'])
+    return user.serialize(removed_item=['password'])
 
 # CLUBS
 def get_all_clubs():
-    return [c.serialize(['events', 'admins', 'members']) for c in Club.query.all()]
+    return [c.serialize(removed_item=['events', 'admins', 'members']) for c in Club.query.all()]
 
-def create_club():
+def create_club(name, description):
     new_club = Club(
         name=name,
         description=description
     )
     db.session.add(new_club)
     db.session.commit()
-    return new_club.serialize()
+    return new_club.serialize(nested_remove=['clubs'])
 
 def delete_club_by_id(club_id):
     club = Club.query.filter_by(id=club_id).first()
@@ -37,25 +37,38 @@ def delete_club_by_id(club_id):
         return None
     db.session.delete(club)
     db.session.commit()
-    return club.serialize()
+    return club.serialize(nested_remove=['clubs'])
 
 def get_club_by_id(club_id):
     club = Club.query.filter_by(id=club_id).first()
     if club is None:
-        return none
-    return club.serialize()
+        return None
+    return club.serialize(nested_remove=['clubs'])
 
 # EVENTS
-def create_event():
-    new event = Event(
+def create_event(name, description, date, budget):
+    new_event = Event(
         name=name,
         description=description,
         date=date,
         budget=budget
     )
-    db.session.add(new_club)
+    db.session.add(new_event)
     db.session.commit()
-    return new_task.serialize()
+    return new_event.serialize()
+
+def addclub2event(event_id, club_id):
+    event = Event.query.filter_by(id=event_id).first()
+    if event is None:
+        return None
+
+    club = Club.query.filter_by(id=club_id).first()
+    if club is None:
+        return None
+
+    event.clubs.append(club)
+    db.session.commit()
+    return event.serialize(nested_remove=["events"])
 
 def delete_event_by_id(event_id):
     event = Event.query.filter_by(id=event_id).first()
@@ -63,7 +76,7 @@ def delete_event_by_id(event_id):
         return None
     db.session.delete(event)
     db.session.commit()
-    return club.serialize()
+    return event.serialize()
 
 def get_event_by_id(event_id):
     event = Event.query.filter_by(id=event_id).first()
@@ -72,16 +85,25 @@ def get_event_by_id(event_id):
     return event.serialize()
 
 # TASKS
-def create_task():
+def create_task(name, description, date, budget, event_id):
     new_task = Task(
         name=name,
         description=description,
         date=date,
         budget=budget
     )
-    db.session.add(new_club)
+    event = get_event_by_id(event_id)
+    event.tasks.append(new_task)
     db.session.commit()
     return new_task.serialize()
+
+def delete_task_by_id(task_id):
+    task = Task.query.filter_by(id=task_id).first()
+    if task is None:
+        return None
+    db.session.delete(task)
+    db.session.commit()
+    return task.serialize()
 
 def get_task_by_id(task_id):
     task = Task.query.filter_by(id=task_id).first()
@@ -93,7 +115,7 @@ def get_task_by_id(task_id):
 def create_request(user_id, club_id, message, accepted):
     new_request = JoinRequest(
         user_id=user_id,
-        club_id=club_id
+        club_id=club_id,
         message=message,
         accepted=accepted
     )
@@ -114,19 +136,6 @@ def adduser2club(user_id, club_id):
     db.session.commit()
     updated_club = Club.query.filter_by(id=event_id).first()
     return updated_club.serialize()
-
-def addclub2event(event_id, club_id):
-    event = Event.query.filter_by(id=event_id).first()
-    if event is None:
-        return None
-
-    club = Club.query.filter_by(id=club_id).first()
-    if club is None:
-        return None
-
-    event.clubs.append(club)
-    db.session.commit()
-    return event.serialize()
 
 def addevent2user(user_id, event_id):
     user = User.query.filter_by(id=user_id).first()
