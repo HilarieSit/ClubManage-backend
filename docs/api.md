@@ -173,15 +173,16 @@ Response
 }
 ```
 
-### 8) Add Member to Club (Admin)
-Add member to club
+### 8) Add User to Club (Admin)
+Add user to club
 
 <code>POST</code> /api/clubs/{id}/adduser/
 
 Request
 ```
 {
-  "user_id": <USER INPUT>
+  "user_id": <USER INPUT>,
+  "type": "admin" or "member"
 }
 ```
 Response

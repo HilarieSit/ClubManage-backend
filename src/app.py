@@ -26,6 +26,10 @@ def failure_response(message, code=404):
 ### ROUTES
 
 # USERS
+@app.route('/')
+def hello():
+    return "ClubManage: Club Management Application", 200
+
 @app.route('/api/users/', methods=['POST'])
 def create_user():
     body = json.loads(request.data)
@@ -38,7 +42,10 @@ def create_user():
 
 @app.route('/api/users/<int:user_id>/')
 def get_user(user_id):
-    return success_response(dao.get_user_by_id(user_id))
+    user = dao.get_user_by_id(user_id)
+    if user is None:
+        return failure_response("User not found")
+    return success_response(user)
 
 # CLUBS
 @app.route('/api/clubs/')
@@ -53,7 +60,7 @@ def create_club(user_id):
         description = body.get('description')
     )
     club_id = club.get('id')
-    # add user as admin to club
+    # add the user that created club as club admin
     updated_club = dao.adduser2club(user_id, club_id, 'admin')
     return success_response(updated_club, 201)
 
@@ -135,6 +142,14 @@ def delete_task(task_id):
         return failure_response("Task not found")
     return success_response(task)
 
+@app.route('/api/tasks/<int:task_id>/')
+def get_task(task_id):
+    task = dao.get_task_by_id(task_id)
+    if task is None:
+        return failure_response("Task not found")
+    return success_response(task)
+
+
 # REQUEST
 @app.route('/api/addrequest/', methods=['POST'])
 def addrequest():
@@ -148,21 +163,29 @@ def addrequest():
     )
     return success_response(addrequest, 201)
 
+@app.route('/api/clubs/<int:club_id>/adduser/', methods=['POST'])
+def add_user_to_club(club_id):
+    body = json.loads(request.data)
+    club = dao.adduser2club(body.get('user_id'), club_id, body.get('type'))
+    if club is None:
+        return failure_response("Club not found")
+    return success_response(club)
+
 @app.route('/api/events/<int:event_id>/adduser/', methods=['POST'])
 def add_user_to_event(event_id):
     body = json.loads(request.data)
-    user = dao.addevent2user(body.get('user_id'), event_id)
-    if user is None:
+    event = dao.addevent2user(body.get('user_id'), event_id)
+    if event is None:
         return failure_response("Event not found")
-    return success_response(user)
+    return success_response(event)
 
 @app.route('/api/tasks/<int:task_id>/adduser/', methods=['POST'])
 def add_user_to_task(task_id):
     body = json.loads(request.data)
-    user = dao.addtask2user(body.get('user_id'), task_id)
-    if user is None:
-        return failure_response("User not found")
-    return success_response(user)
+    task = dao.addtask2user(body.get('user_id'), task_id)
+    if task is None:
+        return failure_response("Task not found")
+    return success_response(task)
 
 @app.route('/api/addrequest/<int:request_id>/', methods=['POST'])
 def accept_deny_request(request_id):
@@ -172,18 +195,19 @@ def accept_deny_request(request_id):
         return failure_response("Request not found")
     current_state = addreq.get('accepted')
     if current_state is None:
-        # either accept or deny
         user_id = addreq.get("user_id")
         club_id = addreq.get("club_id")
         admin_response = body.get("accepted")
         if admin_response is True:
+            # if accept member
             type = body.get('type')
             user = dao.adduser2club(user_id, club_id, type)
             return success_response(user)
         else:
+            # if deny member
             user = dao.get_user_by_id(user_id)
             return success_response(user)
-    # if accepted is not null
+    # if accepted is not null, that means request is true or false
     return failure_response("Cannot change request already accepted/denied")
 
 
