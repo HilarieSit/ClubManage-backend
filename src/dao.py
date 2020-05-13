@@ -18,6 +18,7 @@ def get_user_by_id(user_id):
     # remove password
     return user.serialize(removed_item=['password'])
 
+
 # CLUBS
 def get_all_clubs():
     return [c.serialize(removed_item=['events', 'admins', 'members']) for c in Club.query.all()]
@@ -45,13 +46,30 @@ def get_club_by_id(club_id):
         return None
     return club.serialize()
 
+def update_club_by_id(club_id, body):
+    club = Club.query.filter_by(id=club_id).first()
+    if club is None:
+        return None
+    club.name = body.get("name", club.name)
+    club.description = body.get("description", club.description)
+    db.session.commit()
+    return club.serialize()
+
+def get_join_requests(club_id):
+    club = Club.query.filter_by(id=club_id).first()
+    if club is None:
+        return None
+    return club.serialize_join_requests()
+
 # EVENTS
-def create_event(name, description, date, budget):
+def create_event(name, description, date, budget, location, time):
     new_event = Event(
         name=name,
         description=description,
         date=date,
-        budget=budget
+        budget=budget,
+        location=location,
+        time=time
     )
     db.session.add(new_event)
     db.session.commit()
@@ -83,6 +101,18 @@ def get_event_by_id(event_id):
     if event is None:
         return None
     return event.serialize()
+
+def update_event_by_id(event_id,  body):
+    event = Event.query.filter_by(id=event_id).first()
+    if event is None:
+        return None
+    event.name = body.get("name", event.name)
+    event.date = body.get("date", event.date)
+    event.description = body.get("description", event.description)
+    event.budget = body.get("budget", event.budget)
+    db.session.commit()
+    return event.serialize()
+    
 
 # TASKS
 def create_task(name, description, date, budget, event_id):
@@ -159,6 +189,25 @@ def addevent2user(user_id, event_id):
     db.session.commit()
     updated_event = Event.query.filter_by(id=event_id).first()
     return updated_event.serialize()
+
+def delete_club_from_user(club_id, user_id, user_type):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        return None
+
+    club = Club.query.filter_by(id=club_id).first()
+    if club is None:
+        return None
+
+    if(user_type == "member"):
+        club.members.remove(user)
+    if(user_type == "admin"):
+        club.admins.remove(user)
+    
+    db.session.commit()
+    updated_user= User.query.filter_by(id=user_id).first()
+    return updated_user.serialize(removed_item=['password'])
+
 
 def addtask2user(user_id, task_id):
     user = User.query.filter_by(id=user_id).first()

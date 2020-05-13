@@ -51,8 +51,8 @@ class User(db.Model):
             'id': self.id,
             'name': self.name,
             'email': self.email,
-            'password': self.password,
             'clubs': all_clubs,
+            'password': self.password,
             'events': [e.serialize_info() for e in self.events],
             'tasks': [t.serialize_info() for t in self.tasks],
         }
@@ -76,6 +76,7 @@ class Club(db.Model):
     events = db.relationship('Event', secondary=clubs_events_assoc, back_populates='clubs')
     admins = db.relationship('User', secondary=clubs_admins_assoc, back_populates='admin_clubs')
     members = db.relationship('User', secondary=clubs_members_assoc, back_populates='member_clubs')
+    join_requests = db.relationship("JoinRequest", cascade="delete")
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('name', '')
@@ -102,6 +103,12 @@ class Club(db.Model):
             'description': self.description
         }
 
+    def serialize_join_requests(self):
+        return {
+            'join_requests': [jr.serialize_info() for jr in self.join_requests]
+        }
+
+
 
 class Event(db.Model):
     __tablename__ = 'event'
@@ -110,6 +117,8 @@ class Event(db.Model):
     description = db.Column(db.String, nullable=False)
     date = db.Column(db.String, nullable=False)
     budget = db.Column(db.Float, nullable=True)
+    location = db.Column(db.String, nullable=True)
+    time = db.Column(db.String, nullable=True)
     tasks = db.relationship('Task', cascade='delete')
     clubs = db.relationship('Club', secondary=clubs_events_assoc, back_populates='events')
     users = db.relationship('User', secondary=events_users_assoc, back_populates='events')
@@ -126,6 +135,8 @@ class Event(db.Model):
             'name': self.name,
             'description': self.description,
             'date': self.date,
+            'location': self.location,
+            'time': self.time,
             'budget': self.budget,
             'tasks': [t.serialize_info() for t in self.tasks],
             'clubs': [c.serialize_info() for c in self.clubs],
@@ -142,6 +153,8 @@ class Event(db.Model):
             'name': self.name,
             'description': self.description,
             'date': self.date,
+            'location': self.location,
+            'time': self.time,
             'budget': self.budget,
         }
 
@@ -210,4 +223,9 @@ class JoinRequest(db.Model):
         if removed_item is not None:
             for item in removed_item:
                 serialized_dict.pop(item)
+        return serialized_dict
+
+    def serialize_info(self):
+        serialized_dict = self.serialize()
+        serialized_dict.pop('club_id', None)
         return serialized_dict
