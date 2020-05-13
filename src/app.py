@@ -47,22 +47,29 @@ def get_user(user_id):
         return failure_response("User not found")
     return success_response(user)
 
+@app.route('/api/clubs/<int:cid>/<int:uid>/', methods=['POST'])
+def delete_club_from_user(cid=None, uid=None):
+    body = json.loads(request.data)
+    user_type = body.get("type")
+    user = dao.delete_club_from_user(cid, uid, user_type)
+    if user is None:
+        return failure_response("User not found")
+    return success_response(user)
+
+
 # CLUBS
 @app.route('/api/clubs/')
 def get_clubs():
     return success_response(dao.get_all_clubs())
 
-@app.route('/api/users/<int:user_id>/clubs/', methods=['POST'])
-def create_club(user_id):
+@app.route('/api/clubs/', methods=['POST'])
+def create_club():
     body = json.loads(request.data)
     club = dao.create_club(
         name = body.get('name'),
         description = body.get('description')
     )
-    club_id = club.get('id')
-    # add the user that created club as club admin
-    updated_club = dao.adduser2club(user_id, club_id, 'admin')
-    return success_response(updated_club, 201)
+    return success_response(club, 201)
 
 @app.route('/api/clubs/<int:club_id>/', methods=['DELETE'])
 def delete_club(club_id):
@@ -71,12 +78,28 @@ def delete_club(club_id):
         return failure_response("Club not found")
     return success_response(club)
 
-@app.route('/api/clubs/<int:club_id>/')
+@app.route('/api/clubs/<int:club_id>/', methods=['GET'])
 def get_club(club_id):
     club = dao.get_club_by_id(club_id)
     if club is None:
         return failure_response("Club not found")
     return success_response(club)
+
+@app.route('/api/clubs/<int:club_id>/', methods=['POST'])
+def update_club(club_id):
+    body = json.loads(request.data)
+    club = dao.update_club_by_id(club_id, body)
+    if club is None:
+        return failure_response("Club not found")
+    return success_response(club)
+
+@app.route('/api/clubs/<int:club_id>/requests/', methods=['GET'])
+def get_join_requests(club_id):
+    join_requests = dao.get_join_requests(club_id)
+    if join_requests is None:
+        return failure_response("Club not found")
+    return success_response(join_requests)
+
 
 # EVENTS
 @app.route('/api/clubs/<int:club_id>/events/', methods=['POST'])
@@ -86,7 +109,9 @@ def create_event(club_id):
         name = body.get('name'),
         date = body.get('date'),
         description = body.get('description'),
-        budget = body.get('budget')
+        budget = body.get('budget'),
+        location = body.get('location'),
+        time = body.get('time'),
     )
     event = dao.addclub2event(new_event.get('id'), club_id)
     return success_response(event, 201)
@@ -111,13 +136,21 @@ def add_club_to_event(event_id):
     )
     return success_response(event)
 
-@app.route('/api/events/<int:event_id>/')
+@app.route('/api/events/<int:event_id>/', methods=['GET'])
 def get_event(event_id):
     event = dao.get_event_by_id(event_id)
     if event is None:
         return failure_response("Event not found")
     return success_response(event)
 
+@app.route('/api/events/<int:event_id>/', methods=['POST'])
+def update_event(event_id):
+    body = json.loads(request.data)
+    event = dao.update_event_by_id(event_id, body)
+    if event is None:
+        return failure_response("Event not found")
+    return success_response(event)
+    
 
 # TASKS
 @app.route('/api/events/<int:event_id>/tasks/', methods=['POST'])
