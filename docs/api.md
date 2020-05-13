@@ -532,7 +532,7 @@ Response
   "success": true,
   "data": [
     {
-      "join_requests": [<SERIALIZED JOINREQUEST>,...]
+      "join_requests": [<SERIALIZED JOINREQUEST WITHOUT CLUB_ID>,...]
     }
   ]
 }
