@@ -236,9 +236,10 @@ Request
   "name": <USER INPUT>,
   "date": <USER INPUT>,
   "description": <USER INPUT>,
+  "location": <USER INPUT>,
+  "time": <USER INPUT>,
   "budget": <USER INPUT>,
-  "location": <USER INPUT> 
-  "time": <USER INPUT>
+
 }
 ```
 Response
