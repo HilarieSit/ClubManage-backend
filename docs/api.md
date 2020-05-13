@@ -522,3 +522,19 @@ Response
   ]
 }
 ```
+
+### 21) View Club Join Requests
+<code>GET</code> /api/clubs/{cid}/requests/
+
+Response
+```
+{
+  "success": true,
+  "data": [
+    {
+      "join_requests": [<SERIALIZED JOINREQUEST>,...]
+    }
+  ]
+}
+```
+ 
