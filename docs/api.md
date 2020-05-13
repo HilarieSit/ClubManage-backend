@@ -496,9 +496,9 @@ Response
       "id": <ID>,
       "name": <USER INPUT FOR NAME>,
       "description": <USER INPUT FOR DESCRIPTION>,
-      "events": [],
-      "admins": [],
-      "members": []
+      "events": [<SERIALIZED EVENT INFO>...],
+      "admins": [<SERIALIZED USER INFO>...],
+      "members": [<SERIALIZED USER INFO>...]
     },
 }
 ```
@@ -515,9 +515,9 @@ Response
       "id": <ID>,
       "name": <NAME>,
       "email": <USER INPUT>,
-      "clubs": [],
-      "events": [],
-      "tasks": []
+      "clubs": [<SERIALIZED CLUB INFO>...],
+      "events": [<SERIALIZED EVENT INFO>...],
+      "tasks": [<SERIALIZED TASKS INFO>...]
     }
   ]
 }
