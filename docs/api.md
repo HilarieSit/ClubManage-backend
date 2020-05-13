@@ -228,7 +228,7 @@ Response
 ### 10) Create New Event
 Adds new event
 
-<code>POST</code> /api/events/
+<code>POST</code> /api/clubs/<club_id>/events/
 
 Request
 ```
