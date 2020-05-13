@@ -506,6 +506,13 @@ Response
 ### 20) Remove a Club from User
 <code>POST</code> /api/clubs/{cid}/{uid}/
 
+Request
+```
+{
+  "type": "member" or "admin"
+}
+```
+
 Response 
 ```
 {
