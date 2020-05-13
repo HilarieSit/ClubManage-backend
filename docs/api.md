@@ -225,7 +225,7 @@ Response
 }
 ```
 
-### 10) Add Event
+### 10) Create New Event
 Adds new event
 
 <code>POST</code> /api/events/
@@ -236,7 +236,9 @@ Request
   "name": <USER INPUT>,
   "date": <USER INPUT>,
   "description": <USER INPUT>,
-  "budget": <USER INPUT>
+  "budget": <USER INPUT>,
+  "location": <USER INPUT> 
+  "time": <USER INPUT>
 }
 ```
 Response
@@ -248,6 +250,8 @@ Response
     "name": <USER INPUT FOR NAME>,
     "date": <USER INPUT FOR DATE>,
     "description": <USER INPUT FOR DESCRIPTION>,
+    "location": <USER INPUT FOR LOCATION>
+    "time": <USER INPUT FOR TIME> 
     "budget": <USER INPUT FOR BUDGET>,
     "tasks": [],
     "clubs": [],
@@ -289,6 +293,8 @@ Response
     "name": <USER INPUT FOR NAME>,
     "date": <USER INPUT FOR DATE>,
     "description": <USER INPUT FOR DESCRIPTION>,
+    "location": <USER INPUT FOR LOCATION>
+    "time": <USER INPUT FOR TIME> //in Unix String
     "budget": <USER INPUT FOR BUDGET>,
     "tasks": [<SERIALIZED TASK INFO>, ... ],
     "clubs": [<SERIALIZED CLUB INFO>, ... ],
@@ -311,6 +317,8 @@ Response
     "name": <USER INPUT FOR NAME>,
     "date": <USER INPUT FOR DATE>,
     "description": <USER INPUT FOR DESCRIPTION>,
+    "location": <USER INPUT FOR LOCATION>
+    "time": <USER INPUT FOR TIME> //in Unix String
     "budget": <USER INPUT FOR BUDGET>,
     "tasks": [<SERIALIZED TASK INFO>, ... ],
     "clubs": [<SERIALIZED CLUB INFO>, ... ],
@@ -340,6 +348,8 @@ Response
     "name": <USER INPUT FOR NAME>,
     "date": <USER INPUT FOR DATE>,
     "description": <USER INPUT FOR DESCRIPTION>,
+    "location": <USER INPUT FOR LOCATION>
+    "time": <USER INPUT FOR TIME> //in Unix String
     "budget": <USER INPUT FOR BUDGET>,
     "tasks": [<SERIALIZED TASK INFO>, ... ],
     "clubs": [<SERIALIZED CLUB INFO>, ... ],
@@ -424,5 +434,90 @@ Response
     "clubs": [<SERIALIZED CLUB>, ... ],
     "users": [<SERIALIZED USERS>, ... ]
   }
+}
+```
+
+### 18) Edit an Event
+
+Update an event 
+
+<code>POST</code> /api/events/{id}/
+
+Request
+```
+{
+  "name": <USER INPUT FOR NAME OPTIONAL>,
+  "date": <USER INPUT FOR DATE OPTIONAL>,
+  "description": <USER INPUT FOR DESCRIPTION OPTIONAL>,
+  "budget": <USER INPUT FOR BUDGET OPTIONAL>,
+}
+```
+
+Response
+```
+{
+  "success": true,
+  "data": {
+    "id": <ID>,
+    "name": <USER INPUT FOR NAME>,
+    "date": <USER INPUT FOR DATE>,
+    "description": <USER INPUT FOR DESCRIPTION>,
+    "location": <USER INPUT FOR LOCATION>
+    "time": <USER INPUT FOR TIME> //in Unix String
+    "budget": <USER INPUT FOR BUDGET>,
+    "tasks": [<SERIALIZED TASK INFO>, ... ],
+    "clubs": [<SERIALIZED CLUB INFO>, ... ],
+    "users": [<SERIALIZED USER INFO>, ... ]
+  }
+}
+```
+
+### 19) Edit a Club
+
+Update a club
+
+<code>POST</code> /api/clubs/{id}/
+
+Request
+```
+{
+  "name": <USER INPUT OPTIONAL>,
+  "description": <USER INPUT OPTIONAL>
+}
+```
+
+Response
+```
+{
+  "success": true,
+  "data": [
+    {
+      "id": <ID>,
+      "name": <USER INPUT FOR NAME>,
+      "description": <USER INPUT FOR DESCRIPTION>,
+      "events": [],
+      "admins": [],
+      "members": []
+    },
+}
+```
+
+### 20) Remove a Club from User
+<code>POST</code> /api/clubs/{cid}/{uid}
+
+Response 
+```
+{
+  "success": true,
+  "data": [
+    {
+      "id": <ID>,
+      "name": <NAME>,
+      "email": <USER INPUT>,
+      "clubs": [],
+      "events": [],
+      "tasks": []
+    }
+  ]
 }
 ```
