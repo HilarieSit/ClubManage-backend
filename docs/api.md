@@ -504,7 +504,7 @@ Response
 ```
 
 ### 20) Remove a Club from User
-<code>POST</code> /api/clubs/{cid}/{uid}
+<code>POST</code> /api/clubs/{cid}/{uid}/
 
 Response 
 ```
