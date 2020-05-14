@@ -4,7 +4,7 @@ ClubManage is a club management application built to help students organize thei
 
 Application is deployed [here](http://35.243.182.211/) using Google Cloud Platform
 
-API Specifications are located [here](docs/api.md)
+API Specifications are located [here](https://app.swaggerhub.com/apis/ClubManage/ClubManage-Backend/1.0.3-oas3)
 
 Expected functionality is shown in the wireframe flowchart below:
 ![flowchart](docs/flowchart.jpg)
